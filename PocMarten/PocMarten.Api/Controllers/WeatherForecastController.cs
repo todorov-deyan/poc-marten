@@ -38,7 +38,7 @@ namespace PocMarten.Api.Controllers
         [HttpGet(Name = "GetMarten")]
         public async Task<ActionResult<WeatherForecast>> GetMarten(Guid streamId)
         {
-            var result = await _repository.Find(new Guid("1aa8ff06-a2e7-4ec1-81b3-12ada4b8b199"));
+            var result = await _repository.Find(streamId);
 
             if (result is null)
                 return NotFound();
