@@ -1,3 +1,8 @@
+using Marten;
+using Marten.Events.Projections;
+using PocMarten.Api.Aggregates.Weather;
+using PocMarten.Api.Repository;
+
 namespace PocMarten.Api
 {
     public class Program
@@ -12,6 +17,19 @@ namespace PocMarten.Api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddMarten(opt =>
+            {
+                var connString = builder.Configuration.GetConnectionString("Postgre");
+             
+                opt.Connection(connString);
+
+                opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
+            });
+        
+
+            builder.Services.AddScoped<WeatherRepository>();
+
 
             var app = builder.Build();
 
