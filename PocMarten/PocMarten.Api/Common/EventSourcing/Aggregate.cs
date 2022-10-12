@@ -1,4 +1,4 @@
-﻿namespace PocMarten.Api.Repository
+﻿namespace PocMarten.Api.Common.EventSourcing
 {
     public class Aggregate : IAggregate
     {
