@@ -11,9 +11,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Aggregates\Order\Events\" />
-    <Folder Include="Aggregates\Order\Repository\" />
-  </ItemGroup>
-
 </Project>
