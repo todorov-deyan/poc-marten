@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using PocMarten.Api.Common.EventSourcing;
+﻿using PocMarten.Api.Common.EventSourcing;
 
-namespace PocMarten.Api.Repository
+namespace PocMarten.Api.Common.Repository
 {
     public interface IMartenRepository<T> where T : class, IAggregate
     {
