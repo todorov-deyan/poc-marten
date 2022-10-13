@@ -1,7 +1,10 @@
 using Marten;
 using Marten.Events.Projections;
+
+using PocMarten.Api.Aggregates.Order.Models;
+using PocMarten.Api.Aggregates.Order.Repository;
 using PocMarten.Api.Aggregates.Weather.Model;
-using PocMarten.Api.Aggregates.Weather.Respository;
+using PocMarten.Api.Aggregates.Weather.Repository;
 
 namespace PocMarten.Api
 {
@@ -25,11 +28,11 @@ namespace PocMarten.Api
                 opt.Connection(connString);
 
                 opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
             });
         
-
             builder.Services.AddScoped<WeatherRepository>();
-
+            builder.Services.AddScoped<OrderRepository>();
 
             var app = builder.Build();
 
@@ -43,7 +46,6 @@ namespace PocMarten.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

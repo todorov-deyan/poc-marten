@@ -8,12 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Marten" Version="5.10.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Aggregates\Order\Events\" />
-    <Folder Include="Aggregates\Order\Repository\" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
 </Project>

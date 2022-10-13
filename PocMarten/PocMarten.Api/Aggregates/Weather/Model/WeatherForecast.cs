@@ -1,4 +1,5 @@
 using Marten.Events;
+
 using PocMarten.Api.Aggregates.Weather.Events;
 using PocMarten.Api.Common.EventSourcing;
 
@@ -16,18 +17,14 @@ namespace PocMarten.Api.Aggregates.Weather.Model
 
         public WeatherTemperatureStatus Status { get; set; }
 
-
         public void Apply(TemperatureHigh @event)
         {
-
             TemperatureC += @event.TemperatureHighC;
             Status = WeatherTemperatureStatus.High;
-
         }
 
         public void Apply(IEvent<TemperatureLow> @event)
         {
-
             TemperatureC -= @event.Data.TemperatureLowC;
             Status = WeatherTemperatureStatus.Low;
         }
