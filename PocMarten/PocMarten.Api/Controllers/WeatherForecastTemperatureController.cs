@@ -36,15 +36,15 @@ namespace PocMarten.Api.Controllers
             {
                 case -1: events.Add(new TemperatureLow(temperatureChange));
                     break;
-                case 1: events.Add(new TemperatureHigh(temperatureChange));
+                case  1: events.Add(new TemperatureHigh(temperatureChange));
                     break;
-                default: events.Add(new TemperatureHigh(temperatureChange));
-                    break;
+                default:
+                    return BadRequest();
             };
             
             await _repository.Update(forecast.Id, events, cancellationToken);
 
-            return Ok();
+            return CreatedAtAction("Get", "WeatherForecast", new { streamId = streamId }, new { streamId = streamId });
         }
 
     }

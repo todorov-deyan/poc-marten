@@ -21,8 +21,8 @@ namespace PocMarten.Api.Controllers
         }
 
 
-        [HttpGet("{streamId}", Name = "GetWeatherForecast")]
-        public async Task<ActionResult<WeatherForecast>> GetMarten(Guid streamId, CancellationToken cancellationToken = default)
+        [HttpGet("{streamId:guid}", Name = "GetWeatherForecast")]
+        public async Task<ActionResult<WeatherForecast>> Get(Guid streamId, CancellationToken cancellationToken = default)
         {
             var result = await _repository.Find(streamId, cancellationToken); 
 
@@ -39,11 +39,12 @@ namespace PocMarten.Api.Controllers
             weatherForecast.Id = Guid.NewGuid();
 
             List<IEventState> events = new();
+
             events.Add(new TemperatureMonitoringStarted(currentTemperature));
           
             await _repository.Add(weatherForecast, events, cancellationToken);
 
-            return Ok();
+            return CreatedAtAction("Get", new { streamId = weatherForecast.Id }, new {streamId = weatherForecast.Id });
         }
 
     }
