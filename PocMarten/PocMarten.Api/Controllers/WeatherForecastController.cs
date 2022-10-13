@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PocMarten.Api.Aggregates.Weather;
 using PocMarten.Api.Aggregates.Weather.Events;
-using PocMarten.Api.Repository;
+using PocMarten.Api.Aggregates.Weather.Respository;
+using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers
 {
@@ -9,10 +10,6 @@ namespace PocMarten.Api.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
 
         private readonly WeatherRepository _repository;
         private readonly ILogger<WeatherForecastController> _logger;
@@ -23,22 +20,11 @@ namespace PocMarten.Api.Controllers
             _logger = logger;
         }
 
-        //[HttpGet(Name = "GetWeatherForecast")]
-        //public IEnumerable<WeatherForecast> Get()
-        //{
-        //    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        //        {
-        //            Date = DateTime.Now.AddDays(index),
-        //            TemperatureC = Random.Shared.Next(-20, 55),
-        //            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        //        })
-        //        .ToArray();
-        //}
 
-        [HttpGet(Name = "GetMarten")]
-        public async Task<ActionResult<WeatherForecast>> GetMarten(Guid streamId)
+        [HttpGet("{streamId:guid}", Name = "GetWeatherForecast")]
+        public async Task<ActionResult<WeatherForecast>> Get(Guid streamId, CancellationToken cancellationToken = default)
         {
-            var result = await _repository.Find(streamId);
+            var result = await _repository.Find(streamId, cancellationToken); 
 
             if (result is null)
                 return NotFound();
@@ -46,24 +32,21 @@ namespace PocMarten.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost(Name = "PostMarten")]
-        public async Task<ActionResult> Post()
+        [HttpPost(Name = "PostWeatherForecast")]
+        public async Task<ActionResult> Post(int currentTemperature, CancellationToken cancellationToken = default)
         {
             WeatherForecast weatherForecast = new WeatherForecast();
             weatherForecast.Id = Guid.NewGuid();
 
-            List<object> events = new();
+            List<IEventState> events = new();
 
-            events.Add((new TemperatureHigh(1)));
-            events.Add((new TemperatureHigh(3)));
-            events.Add((new TemperatureHigh(5)));
-            events.Add((new TemperatureLow(2)));
+            events.Add(new TemperatureMonitoringStarted(currentTemperature));
+          
+            await _repository.Add(weatherForecast, events, cancellationToken);
 
-
-            await _repository.Add(weatherForecast, events.ToArray());
-
-            return Ok();
+            return CreatedAtAction("Get", new { streamId = weatherForecast.Id }, new {streamId = weatherForecast.Id });
         }
+
     }
 }
     

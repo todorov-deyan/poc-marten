@@ -1,6 +1,8 @@
-﻿namespace PocMarten.Api.Aggregates.Weather.Events
+﻿using PocMarten.Api.Common.EventSourcing;
+
+namespace PocMarten.Api.Aggregates.Weather.Events
 {
-    public class TemperatureHigh
+    public class TemperatureHigh : IEventState
     {
         public int TemperatureHighC { get; set; }
 

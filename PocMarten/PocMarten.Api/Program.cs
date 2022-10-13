@@ -1,7 +1,7 @@
 using Marten;
 using Marten.Events.Projections;
 using PocMarten.Api.Aggregates.Weather;
-using PocMarten.Api.Repository;
+using PocMarten.Api.Aggregates.Weather.Respository;
 
 namespace PocMarten.Api
 {
