@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+
 using PocMarten.Api.Aggregates.Weather.Events;
 using PocMarten.Api.Aggregates.Weather.Model;
-using PocMarten.Api.Aggregates.Weather.Respository;
+using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers

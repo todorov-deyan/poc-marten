@@ -1,6 +1,8 @@
-﻿namespace PocMarten.Api.Aggregates.Order.Models
+﻿using PocMarten.Api.Common.EventSourcing;
+
+namespace PocMarten.Api.Aggregates.Order.Models
 {
-    public class OrderDetail
+    public class OrderDetail : Aggregate
     {
         public string PartNumber { get; set; }
 
