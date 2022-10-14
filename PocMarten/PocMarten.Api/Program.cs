@@ -1,10 +1,11 @@
 using Marten;
 using Marten.Events.Projections;
-
+using PocMarten.Api.Aggregates.BicoinExchangeRate.Repository;
 using PocMarten.Api.Aggregates.Order.Models;
 using PocMarten.Api.Aggregates.Order.Repository;
 using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Repository;
+using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
 
 namespace PocMarten.Api
 {
@@ -29,10 +30,12 @@ namespace PocMarten.Api
 
                 opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
             });
         
             builder.Services.AddScoped<WeatherRepository>();
             builder.Services.AddScoped<OrderRepository>();
+            builder.Services.AddScoped<ExchangeRateRepository>();
 
             var app = builder.Build();
 
