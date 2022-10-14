@@ -11,7 +11,7 @@ namespace PocMarten.Api.Aggregates.BankAccount.Model
         public string Owner { get; set; }
         public decimal Balance { get; set; }
 
-        public IList<AccountTransaction> Transactions { get; set; } = new List<AccountTransaction>();
+        public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
      
         public bool IsOverdraftAllowed { get; set; }
 
@@ -43,17 +43,17 @@ namespace PocMarten.Api.Aggregates.BankAccount.Model
             Status = AccountStatus.Debited;
         }
 
-        public void Apply(AccountTransactionCredited credit)
+        public void Apply(AccountWithdrawed withdraw)
         {
-            this.Balance += credit.Amount;
-            Status = AccountStatus.Credited;
+            this.Balance -= withdraw.Amount;
+            Status = AccountStatus.Withdrawed;
         }
 
-        public void Apply(AccountOverdraft overdraft)
+        public void Apply(AccountOverdrafted overdraft)
         {
             this.Balance -= overdraft.Amount;//????
 
-            Status = AccountStatus.Overdraft;
+            Status = AccountStatus.Overdrafted;
         }
 
         public void Apply(AccountClosed closed)

@@ -4,7 +4,6 @@
     {
         public string Owner { get; set; }
         public decimal Balance { get; set; } = 0;
-
         public string Description { get; set; }
     }
 }

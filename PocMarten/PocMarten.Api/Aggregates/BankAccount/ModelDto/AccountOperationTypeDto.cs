@@ -2,8 +2,9 @@
 {
     public enum AccountOperationTypeDto
     {
-        Deposit = 0,
-        Credit = 1,
-        Close = 2
+        None = 0,
+        Deposit  = 1,
+        Withdraw = 2,
+        Close    = 3
     }
 }

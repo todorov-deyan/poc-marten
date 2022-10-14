@@ -1,6 +1,6 @@
 ﻿using Marten;
 using PocMarten.Api.Aggregates.BankAccount.Model;
-using PocMarten.Api.Repository;
+using PocMarten.Api.Common.Repository;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Repository
 {

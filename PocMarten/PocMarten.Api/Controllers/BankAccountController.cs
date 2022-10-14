@@ -6,7 +6,7 @@ using PocMarten.Api.Aggregates.BankAccount.ModelDto;
 using PocMarten.Api.Aggregates.BankAccount.Repository;
 using PocMarten.Api.Aggregates.Weather.Events;
 using PocMarten.Api.Aggregates.Weather.Model;
-using PocMarten.Api.Aggregates.Weather.Respository;
+using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers
@@ -61,7 +61,7 @@ namespace PocMarten.Api.Controllers
 
             await _repository.Add(newAccount, events, cancellationToken);
 
-            return CreatedAtAction("Get", new { accountId = newAccount.Id }, new { accountId = newAccount.Id, owner = newAccount.Owner, balance = newAccount.Balance });
+            return CreatedAtAction("Get", new { accountId = newAccount.Id }, accountCreated);
         }
     }
 }

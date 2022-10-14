@@ -2,9 +2,9 @@
 
 namespace PocMarten.Api.Aggregates.BankAccount.Events
 {
-    public class AccountDebited : AccountBase
+    public class AccountWithdrawed : AccountBase
     {
-        public AccountDebited()
+        public AccountWithdrawed()
         {
             Time = DateTimeOffset.UtcNow;
         }
