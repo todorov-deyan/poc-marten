@@ -19,19 +19,35 @@ namespace PocMarten.Api.Controllers
             _logger = logger;
         }
 
-        [HttpPost(Name = "PostInvoice")]
+        [HttpPost(Name = "CreateInvoices")]
         public async Task<ActionResult> Post(double amount, CancellationToken cancellationToken = default)
         {
-            Invoice invoice = new Invoice();
+            InvoiceModel invoice = new InvoiceModel();
             invoice.Id = Guid.NewGuid();
 
-            List<IEventState> events = new();
-
-            events.Add(new InvoiceDateStarted(amount));
+            var events = new List<IEventState>
+            {
+                new NetAmountValue(amount),
+                new GrossAmountValue(amount)
+            };
 
             await _repository.Add(invoice, events, cancellationToken);
 
             return CreatedAtAction("Post", new { streamId = invoice.Id }, new { streamId = invoice.Id });
+        }
+
+        [HttpGet("{streamId:guid}", Name = "Invoices")]
+        public async Task<ActionResult<InvoiceModel>> Get(Guid streamId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var result = await _repository.Find(streamId, cancellationToken);
+                return Ok(result);
+            }
+            catch (NullReferenceException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

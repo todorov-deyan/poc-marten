@@ -19,7 +19,7 @@ namespace PocMarten.Tests
         public OrderTests(ITestOutputHelper output)
         {
             _output = output;
-            _store = DocumentStore.For("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5433;Database=postgres;Pooling=true;");
+            _store = DocumentStore.For("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5432;Database=postgres;Pooling=true;");
         }
 
         [Fact]
