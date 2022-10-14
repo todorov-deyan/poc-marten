@@ -2,68 +2,108 @@
 using Microsoft.CodeAnalysis.Differencing;
 using PocMarten.Api.Aggregates.BankAccount.Events;
 using PocMarten.Api.Common.EventSourcing;
+using PocMarten.Api.Common.Extensions;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Model
 {
     public class Account : Aggregate
     {
+        public string Owner { get; init; }
+        public decimal Balance { get; private set; }
 
-        public string Owner { get; set; }
-        public decimal Balance { get; set; }
-
-        public IList<Transaction> Transactions { get; set; } = new List<Transaction>();
+        private List<Transaction> _transactions = new List<Transaction>();
+        public IReadOnlyList<Transaction> Transactions => _transactions.AsReadOnly();
      
-        public bool IsOverdraftAllowed { get; set; }
+        public bool IsOverdraftAllowed { get; init; }
+        public AccountStatus Status { get; private set; }
 
-        public AccountStatus Status { get; set; }
+        public DateTimeOffset CreatedAt { get; init; }
 
-        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; private set; }
 
-        public DateTimeOffset UpdatedAt { get; set; }
-
-
-        public Account()
+       // [JsonConstructor]
+        private Account()
         {
-            
         }
 
-        public void Apply(IEvent<AccountCreated> @event)
+        protected Account(AccountCreated @event)
         {
-            Id = @event.Data.AccountId;
-            Owner = @event.Data.Owner;
-            Balance = @event.Data.StartingBalance;
-            CreatedAt = UpdatedAt = @event.Data.CreatedAt;
+            _ = @event ?? throw new ArgumentNullException(nameof(@event));
 
+            if (@event.AccountId.IsEmpty())
+                throw new ArgumentException(nameof(@event.AccountId));
+
+            if(Balance < 0)
+                throw new ArgumentException(nameof(@event.StartingBalance));
+
+            Id = @event.AccountId;
+            Owner = @event.Owner;
+            Balance = @event.StartingBalance;
+            IsOverdraftAllowed = @event.IsOverdraftAllowed;
+            CreatedAt = UpdatedAt = @event.CreatedAt;
             Status = AccountStatus.Created;
         }
 
-        public void Apply(AccountDebited debit)
+        public static Account Create(AccountCreated @event)
         {
-            this.Balance += debit.Amount;
+            return new Account(@event);
+        }
+
+        //public void Apply(AccountCreated @event)
+        //{
+        //    this.Balance += @event.StartingBalance;
+        //    Status = AccountStatus.Created;
+        //}
+
+        public void Apply(AccountDebited @event)
+        {
+            this.Balance += @event.Amount;
             Status = AccountStatus.Debited;
         }
 
-        public void Apply(AccountWithdrawed withdraw)
+        public void Apply(AccountWithdrawed @event)
         {
-            this.Balance -= withdraw.Amount;
+            this.Balance -= @event.Amount;
             Status = AccountStatus.Withdrawed;
         }
 
-        public void Apply(AccountOverdrafted overdraft)
+        public void Apply(AccountOverdrafted @event)
         {
-            this.Balance -= overdraft.Amount;//????
+            this.Balance -= @event.Amount;
 
             Status = AccountStatus.Overdrafted;
         }
 
-        public void Apply(AccountClosed closed)
+        public void Apply(AccountClosed @event)
         {
-            closed.Apply(this);
+            Balance = @event.ClosingBalance;
             Status = AccountStatus.Closed;
         }
+        
+        public void Apply(TransactionProccessed @event)
+        {
+            Transaction tr = Transaction.Create(@event);
+            _transactions.Add(tr);
 
-        //????????
-        public bool HasSufficientFunds(AccountDebited debit)
-                        => (Balance - debit.Amount) >= 0;
+            UpdatedAt = @event.CreatedAt;
+            Balance += @event.Amount;
+
+            Status = AccountStatus.TransactionProccessed;
+        }
+
+        public void Apply(TransactionComplated @event)
+        {
+            Transaction tr = Transaction.Create(@event);
+            _transactions.Add(tr);
+
+            UpdatedAt = @event.CreatedAt;
+
+            Status = AccountStatus.TransactionComplated;
+        }
+
+
+        ////????????
+        //public bool HasSufficientFunds(AccountDebited debit)
+        //                => (Balance - debit.Amount) >= 0;
     }
 }

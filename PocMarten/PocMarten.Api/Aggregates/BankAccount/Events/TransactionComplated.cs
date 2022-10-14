@@ -4,7 +4,6 @@ namespace PocMarten.Api.Aggregates.BankAccount.Events
 {
     public class TransactionComplated : IEventState
     {
-        public string Owner { get; set; }
         public Guid AccountId { get; set; }
         public string Description { get; set; }
         public DateTimeOffset CreatedAt { get; init; }

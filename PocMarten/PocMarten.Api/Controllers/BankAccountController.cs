@@ -36,32 +36,25 @@ namespace PocMarten.Api.Controllers
 
             return Ok(result);
         }
-        
+
 
         [HttpPost(Name = "CreateAccount")]
         public async Task<ActionResult> Post(AccountDto accountCreate, CancellationToken cancellationToken = default)
         {
-            Account newAccount = new()
-            {
-                Id = Guid.NewGuid()
-            };
-
             AccountCreated accountCreated = new()
             {
-                AccountId = newAccount.Id,
+                AccountId = Guid.NewGuid(),
                 Owner = accountCreate.Owner,
                 StartingBalance = accountCreate.Balance,
+                IsOverdraftAllowed = true,
                 Description = accountCreate.Description
             };
 
-            List<IEventState> events = new()
-            {
-                accountCreated
-            };
+            var newAccount = Account.Create(accountCreated);
+            
+            await _repository.Add(newAccount, new List<IEventState>(){accountCreated}, cancellationToken: cancellationToken);
 
-            await _repository.Add(newAccount, events, cancellationToken);
-
-            return CreatedAtAction("Get", new { accountId = newAccount.Id }, accountCreated);
+            return CreatedAtAction("Get", new { accountId = newAccount.Id }, newAccount);
         }
     }
 }

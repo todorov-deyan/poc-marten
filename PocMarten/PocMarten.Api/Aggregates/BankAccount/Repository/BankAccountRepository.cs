@@ -1,5 +1,6 @@
 ﻿using Marten;
 using PocMarten.Api.Aggregates.BankAccount.Model;
+using PocMarten.Api.Common.EventSourcing;
 using PocMarten.Api.Common.Repository;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Repository
@@ -13,9 +14,11 @@ namespace PocMarten.Api.Aggregates.BankAccount.Repository
             _session = session;
         }
 
-        public Task<IReadOnlyList<Account>> GetAccounts(IEnumerable<Guid> accounts)
+        public Task Add(Account aggregate, CancellationToken cancellationToken = default)
         {
-            return _session.LoadManyAsync<Account>(accounts);
+            _session.Events.StartStream<Account>(aggregate.Id);
+
+            return _session.SaveChangesAsync(cancellationToken);
         }
     }
 }

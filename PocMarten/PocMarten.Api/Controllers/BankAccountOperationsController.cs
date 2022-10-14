@@ -3,7 +3,6 @@ using PocMarten.Api.Aggregates.BankAccount.Events;
 using PocMarten.Api.Aggregates.BankAccount.Model;
 using PocMarten.Api.Aggregates.BankAccount.ModelDto;
 using PocMarten.Api.Aggregates.BankAccount.Repository;
-using PocMarten.Api.Aggregates.BankAccount.Service;
 using PocMarten.Api.Common.EventSourcing;
 using System.Security.Principal;
 
@@ -14,24 +13,20 @@ namespace PocMarten.Api.Controllers
     public class BankAccountOperationsController : Controller
     {
         private readonly BankAccountRepository _repository;
-        private readonly TransferService _transferService;
-
         private readonly ILogger<BankAccountOperationsController> _logger;
 
 
         public BankAccountOperationsController(BankAccountRepository repository,
-                                               TransferService transferService,
                                                ILogger<BankAccountOperationsController> logger)
         {
             _repository = repository;
-            _transferService = transferService;
             _logger = logger;
         }
 
 
         [HttpPost(Name = "AccountOperation")]
         public async Task<ActionResult> Post(Guid accountId,
-                                             AccountDto accountDetails, 
+                                             AccountDto accountDetails,
                                              AccountOperationTypeDto operationType,
                                              CancellationToken cancellationToken = default)
         {
@@ -56,7 +51,7 @@ namespace PocMarten.Api.Controllers
                     Amount = accountDetails.Balance,
                     Description = accountDetails.Description
                 },
-                AccountOperationTypeDto.Close => new AccountClosed()
+                AccountOperationTypeDto.Close => new AccountClosed
                 {
                     ClosingBalance = accountDetails.Balance,
                     Description = accountDetails.Description
@@ -64,7 +59,7 @@ namespace PocMarten.Api.Controllers
                 AccountOperationTypeDto.None => throw new InvalidOperationException(),
                 _ => throw new InvalidOperationException()
             };
-            
+
             List<IEventState> events = new() { bankOperation };
 
             await _repository.Update(account.Id, events, cancellationToken);
@@ -72,13 +67,51 @@ namespace PocMarten.Api.Controllers
             return CreatedAtAction("Get", "BankAccount", new { accountId = accountId }, new { accountId = accountId, operationType = operationType, details = bankOperation });
         }
 
-        [HttpPost(Name = "AccountTransfer")]
+        [HttpPost("/BankAccountTransfer", Name = "AccountTransfer")]
         public async Task<ActionResult> Post(Guid fromAccountId, Guid toAccountId, decimal amount, CancellationToken cancellationToken = default)
         {
+            Account? fromAccount = await _repository.Find(fromAccountId, cancellationToken);
+            if (fromAccount is null)
+                return NotFound();
 
-            bool result = _transferService.DoTransfer(fromAccountId, toAccountId, amount);
+            Account? toAccount = await _repository.Find(toAccountId, cancellationToken);
+            if (toAccount is null)
+                return NotFound();
 
-            return CreatedAtAction("Get", "BankAccount", new { accountId = accountId }, new { accountId = accountId });
+
+            TransactionStarted startTransaction = new()
+            {
+                AccountId = toAccount.Id,
+                Description = $"Start Money transfer amount: {amount} from account: {fromAccountId} to account:{toAccountId}"
+            };
+
+            TransactionProccessed proccesedTransaction = new()
+            {
+
+                From = fromAccount.Id,
+                To = toAccount.Id,
+                Amount = amount,
+                Description = $"Process Money transfer amount: {amount} from account: {fromAccountId} to account:{toAccountId}"
+            };
+
+            TransactionComplated complateTransaction = new()
+            {
+                AccountId = toAccount.Id,
+                Description = $"Complated Money transfer amount: {amount} from account: {fromAccountId} to account:{toAccountId}"
+
+            };
+
+            List<IEventState> events = new()
+            {
+                startTransaction,
+                proccesedTransaction,
+                complateTransaction
+            };
+
+            await _repository.Update(toAccountId, events, cancellationToken);
+
+            return CreatedAtAction("Get", "BankAccount", new { accountId = toAccountId }, new { accountId = toAccountId });
+
         }
     }
 }

@@ -1,42 +1,59 @@
-﻿using PocMarten.Api.Aggregates.BankAccount.Events;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using PocMarten.Api.Aggregates.BankAccount.Events;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Model
 {
     public class Transaction : Aggregate
     {
-      
-        public Guid To { get; set; }
-        public Guid From { get; set; }
+        public Guid From { get; private set; }
+        public string Description { get; private set; }
+        public DateTimeOffset CreatedAt { get; init; }
+        public decimal Amount { get; private set; }
+        public  TransactionStatus Status { get; private set; }
 
-        public string Description { get; set; }
-
-        public DateTimeOffset CreatedAt { get; set; }
-
-        public DateTimeOffset UpdatedAt { get; set; }
-
-        public decimal Amount { get; set; }
-
-        public  TransactionStatus Status { get; set; }
-       
-        public Transaction(TransactionStarted started)
+        protected Transaction(TransactionStarted @event)
         {
-            CreatedAt = UpdatedAt = started.CreatedAt;
+            Id = @event.AccountId;
+            Description = @event.Description;
+            CreatedAt = @event.CreatedAt;
+
             Status = TransactionStatus.Started;
         }
 
-
-        public void Apply(TransactionProccessed proccessed)
+        protected Transaction(TransactionProccessed @event)
         {
-            UpdatedAt = proccessed.Time;
-            Amount = proccessed.Amount;
+            Id = @event.To;
+            From = @event.From;
+            Amount = @event.Amount;
+            Description = @event.Description;
+            CreatedAt = @event.CreatedAt;
+
             Status = TransactionStatus.Proccessed;
         }
 
-        public void Apply(TransactionComplated complate)
+        protected Transaction(TransactionComplated @event)
         {
-            UpdatedAt = complate.CreatedAt;
+            Id = @event.AccountId;
+            Description = @event.Description;
+            CreatedAt = @event.CreatedAt;
+
             Status = TransactionStatus.Complated;
+        }
+
+        public static Transaction Create(TransactionStarted @event)
+        {
+            return new Transaction(@event);
+        }
+        
+        public static Transaction Create(TransactionProccessed @event)
+        {
+            return new Transaction(@event);
+        }
+
+        public static Transaction Create(TransactionComplated @event)
+        {
+            return new Transaction(@event);
         }
     }
 }

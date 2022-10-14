@@ -8,5 +8,8 @@
         Debited    = 3,
         Overdrafted= 4,
         Closed     = 5,
+        TransactionStarted = 7,
+        TransactionProccessed = 8,
+        TransactionComplated = 9
     }
 }
