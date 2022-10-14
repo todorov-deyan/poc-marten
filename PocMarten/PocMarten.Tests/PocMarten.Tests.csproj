@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="Marten" Version="5.10.1" />
+    <PackageReference Include="Marten.AspNetCore" Version="5.10.1" />
+    <PackageReference Include="Marten.AspNetIdentity" Version="1.0.33" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="Shouldly" Version="4.1.0" />
     <PackageReference Include="xunit" Version="2.4.1" />

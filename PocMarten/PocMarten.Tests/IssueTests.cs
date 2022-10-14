@@ -1,6 +1,10 @@
 ﻿using System.Diagnostics;
-
+using System.Linq.Expressions;
 using Marten;
+using Marten.AspNetCore;
+using Marten.Linq;
+
+using Microsoft.AspNetCore.Http;
 
 using Newtonsoft.Json;
 
@@ -43,7 +47,7 @@ namespace PocMarten.Tests
         }
 
         [Fact]
-        public async Task CreateIssue()
+        public async Task CreateIssue() 
         {
             var originator = new User { Id = Guid.NewGuid() , FirstName = "Ivan", LastName = "Ivanov", Role = "Supervisor"};
             var assigner = new User { Id = Guid.NewGuid() , FirstName = "Petar", LastName = "Petrov", Role = "Employee"};
@@ -149,6 +153,16 @@ namespace PocMarten.Tests
             resultWithFreeThread.ShouldBeGreaterThan(0);
         }
 
+        [Fact]
+        public async Task QueryCompiled()
+        {
+            await using var session = _documentStore.QuerySession();
+
+            var result = session.QueryAsync(new IssueById(Guid.Parse("0183d617-b3c4-4135-b0c8-12798d78bde9")));
+
+            result.ShouldNotBeNull();
+        }
+
         private async Task<int> DemoAwaitWithOccupiedThread(int loop)
         {
             var result = 0;
@@ -179,6 +193,35 @@ namespace PocMarten.Tests
             }
 
             return result;
+        }
+    }
+
+    public class IssueView
+    {
+        public Guid Id { get; set; }
+
+        public string Title { get; set; }
+    }
+
+    public class IssueById : ICompiledListQuery<Issue, IssueView>
+    {
+        public IssueById(Guid id)
+        {
+            Id = id; 
+        }
+        
+        public Guid Id { get; set; }
+        
+        public Expression<Func<IMartenQueryable<Issue>, IEnumerable<IssueView>>> QueryIs()
+        {
+            return q => q
+                .Where(x => x.Id == Id)
+                .OrderBy(x => x.Opened)
+                .Select(x => new IssueView
+                {
+                    Id = x.Id,
+                    Title = x.Title
+                });
         }
     }
 
