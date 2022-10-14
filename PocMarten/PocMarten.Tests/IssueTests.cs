@@ -18,18 +18,28 @@ namespace PocMarten.Tests
         private readonly ITestOutputHelper _output;
         private readonly Stopwatch _stopwatch = new Stopwatch();
 
-        private readonly DocumentStore _store;
+        private readonly DocumentStore _documentStore;
+        private readonly IDocumentSession _documentSession;
+        private readonly IQuerySession _querySession;
 
         public IssueTests(ITestOutputHelper output)
         {
             _output = output;
-            _store = DocumentStore.For(x =>
+            _documentStore = DocumentStore.For(x =>
             {
                 x.Connection("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5433;Database=postgres;Pooling=true;");
                 x.Schema.For<Issue>()
                     .ForeignKey<User>(u => u.AssignerId)
                     .ForeignKey<User>(u => u.OriginatorId);
+                x.Policies.ForAllDocuments(m =>
+                {
+                    m.Metadata.CorrelationId.Enabled = true;
+                    m.Metadata.LastModifiedBy.Enabled = true;
+                });
             });
+
+            _documentSession = _documentStore.OpenSession();
+            _querySession = _documentStore.QuerySession();
         }
 
         [Fact]
@@ -52,7 +62,7 @@ namespace PocMarten.Tests
                 OriginatorId = originator.Id
             };
 
-            await using var writeSession = _store.OpenSession();
+            await using var writeSession = _documentStore.OpenSession();
 
             var docs = new List<object>
             {
@@ -64,7 +74,7 @@ namespace PocMarten.Tests
             writeSession.Store(docs.ToArray());
             await writeSession.SaveChangesAsync().ConfigureAwait(false);
 
-            await using var readSession = _store.OpenSession();
+            await using var readSession = _documentStore.OpenSession();
             var dbIssue = await readSession.LoadAsync<Issue>(issue.Id).ConfigureAwait(false);
 
             _output.WriteLine(JsonConvert.SerializeObject(dbIssue, Formatting.Indented));
@@ -75,7 +85,7 @@ namespace PocMarten.Tests
         [Fact]
         public async Task HasIssues()
         {
-            await using var readSession = _store.OpenSession();
+            await using var readSession = _documentStore.OpenSession();
             var issues =
                 await readSession
                 .Query<Issue>()
@@ -85,6 +95,48 @@ namespace PocMarten.Tests
                 .ConfigureAwait(false);
 
             issues.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public async Task Query()
+        {
+            await using var readSession = _documentStore.OpenSession();
+
+            var openIssues = await readSession.Query<Issue>()
+                .Where(x => x.IsOpen)
+                .OrderByDescending(x => x.Opened)
+                .Take(10)
+                .ToListAsync().ConfigureAwait(false);
+
+            var userIds = openIssues
+                .Where(x => x.AssignerId.HasValue)
+                .Select(x => x.AssignerId.Value)
+                .Distinct()
+                .ToArray();
+
+            var users = await readSession
+                .LoadManyAsync<User>(userIds)
+                .ConfigureAwait(false);
+
+            users.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public async Task QueryOptimized()
+        {
+            await using var readSession = _documentStore.OpenSession();
+
+            var users = new Dictionary<Guid, User>();
+
+            var openIssues = await readSession.Query<Issue>()
+                .Where(x => x.IsOpen)
+                .OrderByDescending(x => x.Opened)
+                .Take(10)
+                .Include(x => x.AssignerId, users)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            openIssues.ShouldNotBeNull();
         }
 
         [Fact]
