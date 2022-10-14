@@ -9,7 +9,6 @@ namespace PocMarten.Api.Aggregates.BankAccount.Events
         public string Description { get; set; }
         public DateTimeOffset CreatedAt { get; init; }
         public decimal StartingBalance { get; set; } = 0;
-
         public bool IsOverdraftAllowed { get; set; }
 
         public AccountCreated()

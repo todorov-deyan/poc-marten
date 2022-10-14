@@ -16,9 +16,7 @@ namespace PocMarten.Api.Aggregates.BankAccount.Model
      
         public bool IsOverdraftAllowed { get; init; }
         public AccountStatus Status { get; private set; }
-
         public DateTimeOffset CreatedAt { get; init; }
-
         public DateTimeOffset UpdatedAt { get; private set; }
 
        // [JsonConstructor]

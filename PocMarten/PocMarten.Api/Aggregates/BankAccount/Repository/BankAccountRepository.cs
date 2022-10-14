@@ -13,12 +13,5 @@ namespace PocMarten.Api.Aggregates.BankAccount.Repository
         {
             _session = session;
         }
-
-        public Task Add(Account aggregate, CancellationToken cancellationToken = default)
-        {
-            _session.Events.StartStream<Account>(aggregate.Id);
-
-            return _session.SaveChangesAsync(cancellationToken);
-        }
     }
 }

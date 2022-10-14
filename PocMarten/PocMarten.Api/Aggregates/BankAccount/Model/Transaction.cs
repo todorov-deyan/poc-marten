@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using PocMarten.Api.Aggregates.BankAccount.Events;
+﻿using PocMarten.Api.Aggregates.BankAccount.Events;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Model

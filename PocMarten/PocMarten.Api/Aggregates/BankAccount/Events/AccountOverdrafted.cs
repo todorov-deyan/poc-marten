@@ -1,6 +1,4 @@
-﻿using PocMarten.Api.Common.EventSourcing;
-
-namespace PocMarten.Api.Aggregates.BankAccount.Events
+﻿namespace PocMarten.Api.Aggregates.BankAccount.Events
 {
     public class AccountOverdrafted : AccountBase
     {

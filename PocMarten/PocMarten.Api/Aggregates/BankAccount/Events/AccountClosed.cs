@@ -1,5 +1,4 @@
-﻿using PocMarten.Api.Aggregates.BankAccount.Model;
-using PocMarten.Api.Common.EventSourcing;
+﻿using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Events
 {

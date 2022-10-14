@@ -4,7 +4,6 @@ using PocMarten.Api.Aggregates.BankAccount.Model;
 using PocMarten.Api.Aggregates.BankAccount.ModelDto;
 using PocMarten.Api.Aggregates.BankAccount.Repository;
 using PocMarten.Api.Common.EventSourcing;
-using System.Security.Principal;
 
 namespace PocMarten.Api.Controllers
 {
