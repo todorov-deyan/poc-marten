@@ -1,5 +1,6 @@
 using Marten;
 using Marten.Events.Projections;
+using PocMarten.Api.Aggregates.Invoices.Repository;
 using PocMarten.Api.Aggregates.BicoinExchangeRate.Repository;
 using PocMarten.Api.Aggregates.Order.Models;
 using PocMarten.Api.Aggregates.Order.Repository;
@@ -35,6 +36,7 @@ namespace PocMarten.Api
         
             builder.Services.AddScoped<WeatherRepository>();
             builder.Services.AddScoped<OrderRepository>();
+            builder.Services.AddScoped<InvoiceRepository>();
             builder.Services.AddScoped<ExchangeRateRepository>();
 
             var app = builder.Build();
