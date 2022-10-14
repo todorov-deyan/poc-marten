@@ -1,5 +1,7 @@
 using Marten;
 using Marten.Events.Projections;
+using PocMarten.Api.Aggregates.BankAccount.Model;
+using PocMarten.Api.Aggregates.BankAccount.Repository;
 using PocMarten.Api.Aggregates.Invoices.Repository;
 using PocMarten.Api.Aggregates.Order.Models;
 using PocMarten.Api.Aggregates.Order.Repository;
@@ -29,10 +31,12 @@ namespace PocMarten.Api
 
                 opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
             });
         
             builder.Services.AddScoped<WeatherRepository>();
             builder.Services.AddScoped<OrderRepository>();
+            builder.Services.AddScoped<BankAccountRepository>();
             builder.Services.AddScoped<InvoiceRepository>();
 
             var app = builder.Build();
