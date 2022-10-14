@@ -27,7 +27,7 @@ namespace PocMarten.Tests
             {
                 x.Connection("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5433;Database=postgres;Pooling=true;");
                 x.Schema.For<Issue>()
-                    .ForeignKey<User>(u => u.AssigneeId)
+                    .ForeignKey<User>(u => u.AssignerId)
                     .ForeignKey<User>(u => u.OriginatorId);
             });
         }
@@ -36,7 +36,7 @@ namespace PocMarten.Tests
         public async Task CreateIssue()
         {
             var originator = new User { Id = Guid.NewGuid() , FirstName = "Ivan", LastName = "Ivanov", Role = "Supervisor"};
-            var assignee = new User { Id = Guid.NewGuid() , FirstName = "Petar", LastName = "Petrov", Role = "Employee"};
+            var assigner = new User { Id = Guid.NewGuid() , FirstName = "Petar", LastName = "Petrov", Role = "Employee"};
 
             var issue = new Issue
             {
@@ -48,16 +48,20 @@ namespace PocMarten.Tests
                 {
                     new IssueTask("Investigate","Do some troubleshooting")
                 },
-                AssigneeId = assignee.Id,
+                AssignerId = assigner.Id,
                 OriginatorId = originator.Id
             };
 
             await using var writeSession = _store.OpenSession();
-            writeSession.Store(originator);
-            writeSession.Store(assignee);
-            await writeSession.SaveChangesAsync().ConfigureAwait(false);
 
-            writeSession.Store(issue);
+            var docs = new List<object>
+            {
+                originator,
+                assigner,
+                issue
+            };
+
+            writeSession.Store(docs.ToArray());
             await writeSession.SaveChangesAsync().ConfigureAwait(false);
 
             await using var readSession = _store.OpenSession();
@@ -130,7 +134,7 @@ namespace PocMarten.Tests
     {
         public Guid Id { get; set; }
 
-        public Guid? AssigneeId { get; set; }
+        public Guid? AssignerId { get; set; }
 
         public Guid? OriginatorId { get; set; }
 
