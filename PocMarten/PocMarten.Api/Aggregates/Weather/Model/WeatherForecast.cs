@@ -1,5 +1,6 @@
+using System.Drawing;
 using Marten.Events;
-
+using Newtonsoft.Json;
 using PocMarten.Api.Aggregates.Weather.Events;
 using PocMarten.Api.Common.EventSourcing;
 
@@ -16,6 +17,18 @@ namespace PocMarten.Api.Aggregates.Weather.Model
         public string? Summary { get; set; }
 
         public WeatherTemperatureStatus Status { get; set; }
+
+        [JsonConstructor]
+        private WeatherForecast()
+        {
+        }
+
+        public WeatherForecast(TemperatureMonitoringStarted @event)
+        {
+            TemperatureC = @event.TemperatureC;
+            Status = WeatherTemperatureStatus.Init;
+        }
+
 
         public void Apply(TemperatureHigh @event)
         {

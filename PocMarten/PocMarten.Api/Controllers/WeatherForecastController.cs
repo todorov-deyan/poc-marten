@@ -1,7 +1,10 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using PocMarten.Api.Aggregates.Weather.Events;
+using PocMarten.Api.Aggregates.Weather.Handlers;
 using PocMarten.Api.Aggregates.Weather.Model;
+using PocMarten.Api.Aggregates.Weather.Queries;
 using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Common.EventSourcing;
 
@@ -11,13 +14,12 @@ namespace PocMarten.Api.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-
-        private readonly WeatherRepository _repository;
+        private readonly IMediator _mediator;
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(WeatherRepository repository, ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(IMediator mediator, ILogger<WeatherForecastController> logger)
         {
-            _repository = repository;
+            _mediator = mediator;
             _logger = logger;
         }
 
@@ -25,7 +27,7 @@ namespace PocMarten.Api.Controllers
         [HttpGet("{streamId:guid}", Name = "GetWeatherForecast")]
         public async Task<ActionResult<WeatherForecast>> Get(Guid streamId, CancellationToken cancellationToken = default)
         {
-            var result = await _repository.Find(streamId, cancellationToken); 
+            var result = await _mediator.Send(new GetWeatherByIdQuery(streamId), cancellationToken);
 
             if (result is null)
                 return NotFound();
@@ -36,16 +38,9 @@ namespace PocMarten.Api.Controllers
         [HttpPost(Name = "PostWeatherForecast")]
         public async Task<ActionResult> Post(int currentTemperature, CancellationToken cancellationToken = default)
         {
-            WeatherForecast weatherForecast = new WeatherForecast();
-            weatherForecast.Id = Guid.NewGuid();
+            var id =  await _mediator.Send(new CurrentTemperatureCommand(currentTemperature), cancellationToken);
 
-            List<IEventState> events = new();
-
-            events.Add(new TemperatureMonitoringStarted(currentTemperature));
-          
-            await _repository.Add(weatherForecast, events, cancellationToken);
-
-            return CreatedAtAction("Get", new { streamId = weatherForecast.Id }, new {streamId = weatherForecast.Id });
+            return CreatedAtAction("Get", new { streamId = id }, new {streamId = id });
         }
 
     }
