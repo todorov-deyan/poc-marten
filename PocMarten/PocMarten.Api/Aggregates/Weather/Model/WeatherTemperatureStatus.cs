@@ -4,6 +4,7 @@
     {
         None = 0,
         High = 1,
-        Low = 2
+        Low = 2,
+        Init = 3
     }
 }

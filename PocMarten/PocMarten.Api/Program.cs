@@ -1,5 +1,6 @@
 using Marten;
 using Marten.Events.Projections;
+using MediatR;
 using PocMarten.Api.Aggregates.BankAccount.Model;
 using PocMarten.Api.Aggregates.BankAccount.Repository;
 using PocMarten.Api.Aggregates.Invoices.Repository;
@@ -9,6 +10,7 @@ using PocMarten.Api.Aggregates.Order.Repository;
 using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
+using PocMarten.Api.Aggregates.Weather.Behaviours;
 
 namespace PocMarten.Api
 {
@@ -24,6 +26,8 @@ namespace PocMarten.Api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddMediatR(typeof(Program));
+            builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(WeatherBehaviour<,>));
 
             builder.Services.AddMarten(opt =>
             {
