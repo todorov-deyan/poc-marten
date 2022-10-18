@@ -4,13 +4,13 @@ namespace PocMarten.Api.Aggregates.Invoices.Events
 {
     public class GrossAmountValue : IEventState
     {
-        private const double GROSSVALUE = 1.2;
-        public string DateIssued { get; set; }
-        public double GrossAmount { get; set; }
+        private const decimal GROSSVALUE = 1.2m;
+        public DateTimeOffset DateIssued { get; set; }
+        public decimal GrossAmount { get; set; }
 
-        public GrossAmountValue(double grossAmount)
+        public GrossAmountValue(decimal grossAmount)
         {
-            DateIssued = DateTime.UtcNow.ToString("dd/MM/yyyy");
+            DateIssued = DateTimeOffset.Now;
             GrossAmount = grossAmount * GROSSVALUE;
         }
     }

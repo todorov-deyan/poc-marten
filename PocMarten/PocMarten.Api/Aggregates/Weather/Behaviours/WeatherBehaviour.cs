@@ -17,9 +17,6 @@ namespace PocMarten.Api.Aggregates.Weather.Behaviours
             _logger.LogInformation($"Before");
 
            return  await next();
-
         }
-
-
     }
 }

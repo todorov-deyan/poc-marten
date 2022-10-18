@@ -17,7 +17,6 @@ namespace PocMarten.Api.Aggregates.Weather.Handlers
             _repository = repository;
         }
 
-
         public async Task<Guid> Handle(CurrentTemperatureCommand request, CancellationToken cancellationToken)
         {
             var initWeather = new TemperatureMonitoringStarted(request.currentTemperature);
@@ -35,8 +34,5 @@ namespace PocMarten.Api.Aggregates.Weather.Handlers
 
             return weatherForecast.Id;
         }
-
     }
-
-
 }
