@@ -11,6 +11,8 @@ using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
 using PocMarten.Api.Aggregates.Weather.Behaviours;
+using PocMarten.Api.Aggregates.Invoices.Behaviours;
+using PocMarten.Api.Aggregates.Invoices.Models;
 
 namespace PocMarten.Api
 {
@@ -28,6 +30,7 @@ namespace PocMarten.Api
             builder.Services.AddSwaggerGen();
             builder.Services.AddMediatR(typeof(Program));
             builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(WeatherBehaviour<,>));
+            builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(InvoiceBehaviour<,>));
 
             builder.Services.AddMarten(opt =>
             {
@@ -36,6 +39,7 @@ namespace PocMarten.Api
                 opt.Connection(connString);
 
                 opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<InvoiceModel>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);

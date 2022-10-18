@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PocMarten.Api.Aggregates.Invoices.Events;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using PocMarten.Api.Aggregates.Invoices.Handlers;
 using PocMarten.Api.Aggregates.Invoices.Models;
-using PocMarten.Api.Aggregates.Invoices.Repository;
+using PocMarten.Api.Aggregates.Invoices.Queries;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers
@@ -10,30 +11,21 @@ namespace PocMarten.Api.Controllers
     [Route("[controller]")]
     public class InvoiceController : ControllerBase
     {
-        private readonly InvoiceRepository _repository;
         private readonly ILogger<InvoiceController> _logger;
+        private readonly IMediator _mediator;
 
-        public InvoiceController(InvoiceRepository repository, ILogger<InvoiceController> logger)
+        public InvoiceController(IMediator mediator, ILogger<InvoiceController> logger)
         {
-            _repository = repository;
+            _mediator = mediator;
             _logger = logger;
         }
 
         [HttpPost(Name = "CreateInvoices")]
-        public async Task<ActionResult> Post(double amount, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> Post(decimal amount, CancellationToken cancellationToken = default)
         {
-            InvoiceModel invoice = new InvoiceModel();
-            invoice.Id = Guid.NewGuid();
+            var id = await _mediator.Send(new AddAmountCommand(amount), cancellationToken);
 
-            var events = new List<IEventState>
-            {
-                new NetAmountValue(amount),
-                new GrossAmountValue(amount)
-            };
-
-            await _repository.Add(invoice, events, cancellationToken);
-
-            return CreatedAtAction("Post", new { streamId = invoice.Id }, new { streamId = invoice.Id });
+            return CreatedAtAction("Get", new { streamId = id }, new { streamId = id });
         }
 
         [HttpGet("{streamId:guid}", Name = "Invoices")]
@@ -41,7 +33,7 @@ namespace PocMarten.Api.Controllers
         {
             try
             {
-                var result = await _repository.Find(streamId, cancellationToken);
+                var result = await _mediator.Send(new GetInvoiceByIdQuery(streamId), cancellationToken);
                 return Ok(result);
             }
             catch (NullReferenceException ex)
