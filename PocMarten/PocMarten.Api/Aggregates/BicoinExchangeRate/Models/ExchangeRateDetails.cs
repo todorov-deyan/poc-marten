@@ -5,11 +5,16 @@ namespace PocMarten.Api.Aggregates.BicoinExchangeRate.Models
 {
     public class ExchangeRateDetails : Aggregate
     {
-        public decimal ExchangeRate { get; set; }
+        public decimal ExchangeRate { get; private set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Date { get; private set; }
 
-        public ExchangePosition Position { get; set; }
+        public ExchangePosition Position { get; private set; }
+
+        public ExchangeRateDetails()
+        {
+            Id = Guid.NewGuid();
+        }
 
         public void Apply(ExchangeRateHigh @event)
         {

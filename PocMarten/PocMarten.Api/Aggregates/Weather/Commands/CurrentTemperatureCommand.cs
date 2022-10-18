@@ -1,14 +1,16 @@
-﻿using MediatR;
+﻿using Ardalis.Result;
+using MediatR;
 using PocMarten.Api.Aggregates.Weather.Events;
 using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Common.EventSourcing;
+using PocMarten.Api.Common.CQRS;
 
-namespace PocMarten.Api.Aggregates.Weather.Handlers
+namespace PocMarten.Api.Aggregates.Weather.Commands
 {
-    public record CurrentTemperatureCommand(int currentTemperature) : IRequest<Guid>;
+    public record CurrentTemperatureCommand(int currentTemperature) : ICommandRequest<Result<WeatherForecast>>;
 
-    public class CurrentTemperatureHandler : IRequestHandler<CurrentTemperatureCommand, Guid>
+    public class CurrentTemperatureHandler : ICommandHandler<CurrentTemperatureCommand, Result<WeatherForecast>>
     {
         private readonly WeatherRepository _repository;
 
@@ -18,22 +20,19 @@ namespace PocMarten.Api.Aggregates.Weather.Handlers
         }
 
 
-        public async Task<Guid> Handle(CurrentTemperatureCommand request, CancellationToken cancellationToken)
+        public async Task<Result<WeatherForecast>> Handle(CurrentTemperatureCommand request, CancellationToken cancellationToken)
         {
             var initWeather = new TemperatureMonitoringStarted(request.currentTemperature);
-
-
+            
             WeatherForecast weatherForecast = new WeatherForecast(initWeather);
-            weatherForecast.Id = Guid.NewGuid();
-            //weatherForecast.TemperatureC = initWeather.TemperatureC;
-
+            
             List<IEventState> events = new();
 
             events.Add(initWeather);
 
             await _repository.Add(weatherForecast, events, cancellationToken);
 
-            return weatherForecast.Id;
+            return  Result<WeatherForecast>.Success(weatherForecast);
         }
 
     }

@@ -23,7 +23,6 @@ namespace PocMarten.Api.Controllers
         public async Task<ActionResult> Post(double amount, CancellationToken cancellationToken = default)
         {
             InvoiceModel invoice = new InvoiceModel();
-            invoice.Id = Guid.NewGuid();
 
             var events = new List<IEventState>
             {

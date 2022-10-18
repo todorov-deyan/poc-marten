@@ -1,9 +1,10 @@
 ﻿namespace PocMarten.Api.Common.EventSourcing
 {
-    public class Aggregate : IAggregate
+    public abstract class Aggregate : IAggregate
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
-        public int Version { get; set; }
+        public int Version { get; }
+
     }
 }

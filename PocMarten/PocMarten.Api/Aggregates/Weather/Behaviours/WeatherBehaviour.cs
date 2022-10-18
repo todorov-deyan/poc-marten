@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using PocMarten.Api.Aggregates.Weather.Handlers;
 
 namespace PocMarten.Api.Aggregates.Weather.Behaviours
 {
@@ -12,14 +11,17 @@ namespace PocMarten.Api.Aggregates.Weather.Behaviours
             _logger = logger;
         }
 
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Before");
 
-           return  await next();
+            var result = await next();
 
+            _logger.LogInformation($"After");
+            
+            return result;
         }
-
-
+        
     }
 }

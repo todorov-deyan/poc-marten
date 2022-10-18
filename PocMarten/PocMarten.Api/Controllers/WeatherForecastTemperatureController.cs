@@ -1,13 +1,8 @@
-﻿using System.Security.Cryptography;
+﻿using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
-using PocMarten.Api.Aggregates.Weather.Events;
-using PocMarten.Api.Aggregates.Weather.Handlers;
-using PocMarten.Api.Aggregates.Weather.Model;
+using PocMarten.Api.Aggregates.Weather.Commands;
 using PocMarten.Api.Aggregates.Weather.Notifications;
-using PocMarten.Api.Aggregates.Weather.Repository;
-using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers
 {
@@ -28,12 +23,20 @@ namespace PocMarten.Api.Controllers
         [HttpPost(Name = "PostTemperature")]
         public async Task<ActionResult> Post(Guid streamId, int temperatureChange, CancellationToken cancellationToken = default)
         {
-            await _mediator.Send((new TemperatureChangedCommand(streamId, temperatureChange)));
+            var result = await _mediator.Send((new TemperatureChangedCommand(streamId, temperatureChange)), cancellationToken);
+            if (!result.IsSuccess)
+            {
+                ActionResult actionResult = result.Status switch
+                {
+                    ResultStatus.NotFound => NotFound(),
+                    ResultStatus.Error => BadRequest(),
+                };
+                return actionResult;
+            }
 
             await _mediator.Publish(new TemperatureNotifyCommand(5), cancellationToken);
 
-           return CreatedAtAction("Get", "WeatherForecast", new { streamId = streamId }, new { streamId = streamId });
-
+            return CreatedAtAction("Get", "WeatherForecast", new { streamId = streamId }, new { streamId = streamId });
         }
 
     }
