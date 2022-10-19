@@ -28,7 +28,10 @@ namespace PocMarten.Api.Controllers
         [HttpGet("{accountId:guid}", Name = "GetAccount")]
         public async Task<ActionResult<Account>> Get(Guid accountId, CancellationToken cancellationToken = default)
         {
-            var account = await _mediator.Send(new GetAccountByIdQuery(accountId), cancellationToken);
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+                var account = await _mediator.Send(new GetAccountByIdQuery(accountId), cancellationToken);
             if(!account.IsSuccess)
                 return NotFound();
 
@@ -39,6 +42,9 @@ namespace PocMarten.Api.Controllers
         [HttpPost(Name = "CreateAccount")]
         public async Task<ActionResult> Post(AccountCreateRequest createAccount, CancellationToken cancellationToken = default)
         {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
             var account =  await _mediator.Send(new AccountCreateCommand(createAccount), cancellationToken);
             if (!account.IsSuccess)
                 return BadRequest();

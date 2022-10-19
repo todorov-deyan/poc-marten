@@ -1,11 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PocMarten.Api.Aggregates.BankAccount.Commands;
-using PocMarten.Api.Aggregates.BankAccount.Events;
-using PocMarten.Api.Aggregates.BankAccount.Model;
 using PocMarten.Api.Aggregates.BankAccount.ModelDto;
 using PocMarten.Api.Aggregates.BankAccount.Repository;
-using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers
 {

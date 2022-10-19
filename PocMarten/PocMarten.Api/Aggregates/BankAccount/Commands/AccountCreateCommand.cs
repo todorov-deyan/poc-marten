@@ -8,7 +8,7 @@ using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Commands
 {
-    public record AccountCreateCommand(AccountCreateRequest createRequest) : ICommandRequest<Result<Account>>;
+    public record AccountCreateCommand(AccountCreateRequest CreateRequest) : ICommandRequest<Result<Account>>;
 
 
     public class AccountCreateCommandHandler : ICommandHandler<AccountCreateCommand, Result<Account>>
@@ -24,10 +24,10 @@ namespace PocMarten.Api.Aggregates.BankAccount.Commands
         {
             AccountCreated accountCreated = new()
             {
-                Owner = request.createRequest.Owner,
-                StartingBalance = request.createRequest.Balance,
+                Owner = request.CreateRequest.Owner,
+                StartingBalance = request.CreateRequest.Balance,
                 IsOverdraftAllowed = true,
-                Description = request.createRequest.Description
+                Description = request.CreateRequest.Description
             };
 
             var newAccount = Account.Create(accountCreated);
