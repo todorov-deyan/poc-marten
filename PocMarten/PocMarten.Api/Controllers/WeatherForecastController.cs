@@ -1,12 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
-using PocMarten.Api.Aggregates.Weather.Events;
-using PocMarten.Api.Aggregates.Weather.Handlers;
+using PocMarten.Api.Aggregates.Weather.Commands;
 using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Queries;
-using PocMarten.Api.Aggregates.Weather.Repository;
-using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Controllers
 {
@@ -28,7 +24,6 @@ namespace PocMarten.Api.Controllers
         public async Task<ActionResult<WeatherForecast>> Get(Guid streamId, CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new GetWeatherByIdQuery(streamId), cancellationToken);
-
             if (result is null)
                 return NotFound();
 
@@ -38,9 +33,11 @@ namespace PocMarten.Api.Controllers
         [HttpPost(Name = "PostWeatherForecast")]
         public async Task<ActionResult> Post(int currentTemperature, CancellationToken cancellationToken = default)
         {
-            var id =  await _mediator.Send(new CurrentTemperatureCommand(currentTemperature), cancellationToken);
-
-            return CreatedAtAction("Get", new { streamId = id }, new {streamId = id });
+            var result =  await _mediator.Send(new CurrentTemperatureCommand(currentTemperature), cancellationToken);
+            if (!result.IsSuccess)
+                return BadRequest();
+           
+            return CreatedAtAction("Get", new { streamId = result.Value.Id }, new {streamId = result.Value.Id });
         }
 
     }

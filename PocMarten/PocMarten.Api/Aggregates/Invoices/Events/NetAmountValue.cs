@@ -5,11 +5,11 @@ namespace PocMarten.Api.Aggregates.Invoices.Events
 {
     public class NetAmountValue : IEventState
     {
-        public string DateIssued { get; set; }
-        public double NetAmount { get; set; }
-        public NetAmountValue(double amount)
+        public DateTimeOffset DateIssued { get; set; }
+        public decimal NetAmount { get; set; }
+        public NetAmountValue(decimal amount)
         {
-            DateIssued = DateTime.UtcNow.ToString("dd/MM/yyyy");
+            DateIssued = DateTimeOffset.UtcNow;
             NetAmount = amount;
         }
     }

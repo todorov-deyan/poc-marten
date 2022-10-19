@@ -1,12 +1,14 @@
-﻿using MediatR;
+﻿using Ardalis.Result;
+using MediatR;
 using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Repository;
+using PocMarten.Api.Common.CQRS;
 
 namespace PocMarten.Api.Aggregates.Weather.Queries
 {
-    public record GetWeatherByIdQuery(Guid Id) : IRequest<WeatherForecast>;
+    public record GetWeatherByIdQuery(Guid Id) : IQueryRequest<Result<WeatherForecast>>;
 
-    public class GetWeatherByIdQueryHandler : IRequestHandler<GetWeatherByIdQuery, WeatherForecast>
+    public class GetWeatherByIdQueryHandler : IQueryHandler<GetWeatherByIdQuery, Result<WeatherForecast>>
     {
         private readonly WeatherRepository _repository;
 
@@ -15,11 +17,13 @@ namespace PocMarten.Api.Aggregates.Weather.Queries
             _repository = repository;
         }
 
-        public async Task<WeatherForecast> Handle(GetWeatherByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<WeatherForecast>> Handle(GetWeatherByIdQuery request, CancellationToken cancellationToken)
         {
             var result = await _repository.Find(request.Id, cancellationToken);
+            if(result is null)
+                return Result.NotFound();
 
-            return result;
+            return Result<WeatherForecast>.Success(result);
         }
     }
 }

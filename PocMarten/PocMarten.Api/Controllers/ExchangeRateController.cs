@@ -41,7 +41,6 @@ namespace PocMarten.Api.Controllers
         public async Task<ActionResult> Post(decimal currentExchangeRate, CancellationToken cancellationToken = default)
         {
             ExchangeRateDetails exchangeRate = new ExchangeRateDetails();
-            exchangeRate.Id = Guid.NewGuid();
 
             List<IEventState> events = new();
 

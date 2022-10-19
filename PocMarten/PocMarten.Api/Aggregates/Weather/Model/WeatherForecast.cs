@@ -21,10 +21,12 @@ namespace PocMarten.Api.Aggregates.Weather.Model
         [JsonConstructor]
         private WeatherForecast()
         {
+            
         }
 
         public WeatherForecast(TemperatureMonitoringStarted @event)
         {
+            Id = Guid.NewGuid();
             TemperatureC = @event.TemperatureC;
             Status = WeatherTemperatureStatus.Init;
         }

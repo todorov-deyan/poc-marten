@@ -30,7 +30,7 @@ namespace PocMarten.Tests
             {
                 Id = Guid.NewGuid(),
                 Amount = 50,
-                DateIssued = DateTime.UtcNow.ToString("dd/MM/yyyy"),
+                DateIssued = DateTimeOffset.UtcNow,
                 Status = AmountType.NetoAmount
             };
 
@@ -52,10 +52,10 @@ namespace PocMarten.Tests
         public class Invoice
         {
             public Guid Id { get; set; }
-            public double Amount { get; set; }
+            public decimal Amount { get; set; }
             public AmountType Status { get;  set; }
 
-            public string DateIssued { get;  set; }
+            public DateTimeOffset DateIssued { get;  set; }
         }
 
         public enum AmountType

@@ -20,21 +20,18 @@ namespace PocMarten.Api.Aggregates.BankAccount.Model
         public DateTimeOffset UpdatedAt { get; private set; }
 
        // [JsonConstructor]
-        private Account()
+        private Account() 
         {
         }
 
-        protected Account(AccountCreated @event)
+        protected Account(AccountCreated @event) 
         {
             _ = @event ?? throw new ArgumentNullException(nameof(@event));
-
-            if (@event.AccountId.IsEmpty())
-                throw new ArgumentException(nameof(@event.AccountId));
 
             if(Balance < 0)
                 throw new ArgumentException(nameof(@event.StartingBalance));
 
-            Id = @event.AccountId;
+            Id = Guid.NewGuid();
             Owner = @event.Owner;
             Balance = @event.StartingBalance;
             IsOverdraftAllowed = @event.IsOverdraftAllowed;
