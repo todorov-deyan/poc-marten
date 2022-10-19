@@ -34,8 +34,5 @@ namespace PocMarten.Api.Aggregates.Weather.Commands
 
             return  Result<WeatherForecast>.Success(weatherForecast);
         }
-
     }
-
-
 }

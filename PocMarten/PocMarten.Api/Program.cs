@@ -1,4 +1,3 @@
-using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Marten;
@@ -14,8 +13,9 @@ using PocMarten.Api.Aggregates.Weather.Model;
 using PocMarten.Api.Aggregates.Weather.Repository;
 using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
 using PocMarten.Api.Aggregates.Weather.Behaviours;
+using PocMarten.Api.Aggregates.Invoices.Behaviours;
+using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.BankAccount.Behaviours;
-using Microsoft.AspNetCore.Identity;
 
 namespace PocMarten.Api
 {
@@ -38,6 +38,7 @@ namespace PocMarten.Api
             builder.Services.AddMediatR(typeof(Program));
             builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BankAccountValidationBehavior<,>));
             builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(WeatherLoggingBehaviour<,>));
+            builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(InvoiceBehaviour<,>));
 
             //MartenDB
             builder.Services.AddMarten(opt =>
@@ -47,6 +48,7 @@ namespace PocMarten.Api
                 opt.Connection(connString);
 
                 opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<InvoiceModel>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
