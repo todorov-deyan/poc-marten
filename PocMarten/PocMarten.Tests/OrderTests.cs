@@ -25,7 +25,7 @@ namespace PocMarten.Tests
             _output = output;
             _store = DocumentStore.For(x =>
             {
-                x.Connection("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5433;Database=postgres;Pooling=true;");
+                x.Connection("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5432;Database=postgres;Pooling=true;");
                 x.Schema.For<Order>()
                     .Index(x=>x.CustomerId)
                     .AddSubClassHierarchy();
