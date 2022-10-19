@@ -1,6 +1,6 @@
 ﻿namespace PocMarten.Api.Aggregates.BankAccount.ModelDto
 {
-    public enum AccountOperationTypeDto
+    public enum AccountOperationType
     {
         None = 0,
         Deposit  = 1,

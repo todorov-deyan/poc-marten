@@ -6,10 +6,20 @@ namespace PocMarten.Api.Aggregates.Invoices.Models
 {
     public class InvoiceModel : Aggregate
     {
+<<<<<<< HEAD
+        public double Amount { get; private set; }
+=======
         public decimal Amount { get; set; }
+>>>>>>> main
         public AmountType Status { get; private set; }
 
         public DateTimeOffset DateIssued { get; private set; }
+
+
+        public InvoiceModel()
+        {
+            Id = Guid.NewGuid();
+        }
 
         public void Apply(NetAmountValue @event)
         {

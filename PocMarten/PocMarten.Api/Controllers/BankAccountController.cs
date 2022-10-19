@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using PocMarten.Api.Aggregates.BankAccount.Commands;
 using PocMarten.Api.Aggregates.BankAccount.Events;
 using PocMarten.Api.Aggregates.BankAccount.Model;
 using PocMarten.Api.Aggregates.BankAccount.ModelDto;
+using PocMarten.Api.Aggregates.BankAccount.Queries;
 using PocMarten.Api.Aggregates.BankAccount.Repository;
 using PocMarten.Api.Common.EventSourcing;
 
@@ -12,12 +15,12 @@ namespace PocMarten.Api.Controllers
     [Route("[controller]")]
     public class BankAccountController : Controller
     {
-        private readonly BankAccountRepository _repository;
+        private readonly IMediator _mediator;
         private readonly ILogger<BankAccountController> _logger;
 
-        public BankAccountController(BankAccountRepository repository, ILogger<BankAccountController> logger)
+        public BankAccountController(IMediator mediator, ILogger<BankAccountController> logger)
         {
-            _repository = repository;
+            _mediator = mediator;
             _logger = logger;
         }
 
@@ -25,32 +28,28 @@ namespace PocMarten.Api.Controllers
         [HttpGet("{accountId:guid}", Name = "GetAccount")]
         public async Task<ActionResult<Account>> Get(Guid accountId, CancellationToken cancellationToken = default)
         {
-            var result = await _repository.Find(accountId, cancellationToken);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            if (result is null)
+                var account = await _mediator.Send(new GetAccountByIdQuery(accountId), cancellationToken);
+            if(!account.IsSuccess)
                 return NotFound();
 
-            return Ok(result);
+            return Ok(account);
         }
 
 
         [HttpPost(Name = "CreateAccount")]
-        public async Task<ActionResult> Post(AccountDto accountCreate, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> Post(AccountCreateRequest createAccount, CancellationToken cancellationToken = default)
         {
-            AccountCreated accountCreated = new()
-            {
-                AccountId = Guid.NewGuid(),
-                Owner = accountCreate.Owner,
-                StartingBalance = accountCreate.Balance,
-                IsOverdraftAllowed = true,
-                Description = accountCreate.Description
-            };
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            var newAccount = Account.Create(accountCreated);
-            
-            await _repository.Add(newAccount, new List<IEventState>(){accountCreated}, cancellationToken: cancellationToken);
+            var account =  await _mediator.Send(new AccountCreateCommand(createAccount), cancellationToken);
+            if (!account.IsSuccess)
+                return BadRequest();
 
-            return CreatedAtAction("Get", new { accountId = newAccount.Id }, newAccount);
+            return CreatedAtAction("Get", new { accountId = account.Value.Id }, account.Value);
         }
     }
 }

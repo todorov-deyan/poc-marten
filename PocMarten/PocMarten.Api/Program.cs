@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Marten;
 using Marten.Events.Projections;
 using MediatR;
@@ -13,6 +15,7 @@ using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
 using PocMarten.Api.Aggregates.Weather.Behaviours;
 using PocMarten.Api.Aggregates.Invoices.Behaviours;
 using PocMarten.Api.Aggregates.Invoices.Models;
+using PocMarten.Api.Aggregates.BankAccount.Behaviours;
 
 namespace PocMarten.Api
 {
@@ -23,15 +26,21 @@ namespace PocMarten.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddMediatR(typeof(Program));
-            builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(WeatherBehaviour<,>));
-            builder.Services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(InvoiceBehaviour<,>));
 
+            //MediatR
+            builder.Services.AddMediatR(typeof(Program));
+            builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BankAccountValidationBehavior<,>));
+            builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(WeatherLoggingBehaviour<,>));
+            builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(InvoiceBehaviour<,>));
+
+            //MartenDB
             builder.Services.AddMarten(opt =>
             {
                 var connString = builder.Configuration.GetConnectionString("Postgre");
@@ -44,7 +53,8 @@ namespace PocMarten.Api
                 opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
                 opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
             });
-        
+            
+            //Repositories
             builder.Services.AddScoped<WeatherRepository>();
             builder.Services.AddScoped<OrderRepository>();
             builder.Services.AddScoped<BankAccountRepository>();
