@@ -7,6 +7,7 @@ namespace PocMarten.Api.Aggregates.Invoices.Models
     public class InvoiceModel : Aggregate
     {
         public decimal Amount { get; set; }
+
         public AmountType Status { get; private set; }
 
         public DateTimeOffset DateIssued { get; private set; }
