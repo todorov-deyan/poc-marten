@@ -7,8 +7,6 @@ namespace PocMarten.Api.Aggregates.BankAccount.Queries
 {
     public record GetAccountByIdQuery(Guid Id) : IQueryRequest<Result<Account>>;
 
-
-
     public class GetAccountByIdQueryHandlers : IQueryHandler<GetAccountByIdQuery, Result<Account>>
     {
         private readonly BankAccountRepository _repository;
