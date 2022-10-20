@@ -18,7 +18,6 @@ namespace PocMarten.Api.Aggregates.Invoices.Handlers
         public async Task<Guid> Handle(AddAmountCommand request, CancellationToken cancellationToken)
         {
             InvoiceModel invoice = new InvoiceModel();
-            invoice.Id = Guid.NewGuid();
 
             var events = new List<IEventState>
             {
