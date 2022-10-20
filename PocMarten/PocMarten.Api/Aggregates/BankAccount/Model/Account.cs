@@ -1,8 +1,5 @@
-﻿using Marten.Events;
-using Microsoft.CodeAnalysis.Differencing;
-using PocMarten.Api.Aggregates.BankAccount.Events;
+﻿using PocMarten.Api.Aggregates.BankAccount.Events;
 using PocMarten.Api.Common.EventSourcing;
-using PocMarten.Api.Common.Extensions;
 
 namespace PocMarten.Api.Aggregates.BankAccount.Model
 {
