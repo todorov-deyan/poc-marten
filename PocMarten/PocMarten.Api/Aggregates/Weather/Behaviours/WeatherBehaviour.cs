@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using PocMarten.Api.Aggregates.Weather.Handlers;
+using PocMarten.Api.Aggregates.Weather.Commands;
 
 namespace PocMarten.Api.Aggregates.Weather.Behaviours
 {

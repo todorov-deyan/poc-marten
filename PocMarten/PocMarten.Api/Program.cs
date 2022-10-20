@@ -16,6 +16,7 @@ using PocMarten.Api.Aggregates.Weather.Behaviours;
 using PocMarten.Api.Aggregates.Invoices.Behaviours;
 using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.BankAccount.Behaviours;
+using PocMarten.Api.ExceptionHandler;
 
 namespace PocMarten.Api
 {
@@ -27,6 +28,8 @@ namespace PocMarten.Api
 
             // Add services to the container.
             builder.Services.AddControllers();
+
+            //Fluent Validation
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
@@ -68,6 +71,10 @@ namespace PocMarten.Api
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+            }
+            else
+            {
+                app.UseGlobalException();
             }
 
             app.UseHttpsRedirection();
