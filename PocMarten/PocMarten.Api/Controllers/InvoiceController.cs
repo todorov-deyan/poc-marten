@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using PocMarten.Api.Aggregates.Invoices.Handlers;
+using PocMarten.Api.Aggregates.Invoices.Commands;
 using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.Invoices.Queries;
 using PocMarten.Api.Common.EventSourcing;

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using PocMarten.Api.Aggregates.Invoices.Handlers;
+using PocMarten.Api.Aggregates.Invoices.Commands;
 
 namespace PocMarten.Api.Aggregates.Invoices.Validators
 {

@@ -6,7 +6,7 @@ using PocMarten.Api.Aggregates.Invoices.Repository;
 using PocMarten.Api.Common.CQRS;
 using PocMarten.Api.Common.EventSourcing;
 
-namespace PocMarten.Api.Aggregates.Invoices.Handlers
+namespace PocMarten.Api.Aggregates.Invoices.Commands
 {
     public record AddAmountCommand(decimal amount) : ICommandRequest<Result<InvoiceModel>>;
 
