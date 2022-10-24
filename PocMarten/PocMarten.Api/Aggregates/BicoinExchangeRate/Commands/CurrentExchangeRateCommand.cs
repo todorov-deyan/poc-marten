@@ -1,13 +1,7 @@
-﻿using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
+﻿using PocMarten.Api.Aggregates.BicoinExchangeRate.Events;
+using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
 using PocMarten.Api.Aggregates.BicoinExchangeRate.Repository;
 using PocMarten.Api.Common.CQRS;
-using Ardalis.Result;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PocMarten.Api.Aggregates.BicoinExchangeRate.Events;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.BicoinExchangeRate.Commands
@@ -27,7 +21,7 @@ namespace PocMarten.Api.Aggregates.BicoinExchangeRate.Commands
         public async Task<ExchangeRateDetails> Handle(CurrentExchangeRateCommand request, CancellationToken cancellationToken)
         {
             var exchangeRate = new ExchangeRateYesterday(request.currentExchangeRate);
-
+            
             ExchangeRateDetails exchangeRateDetails = new ExchangeRateDetails(exchangeRate);
 
             List<IEventState> events = new();
