@@ -16,6 +16,8 @@ using PocMarten.Api.Aggregates.Weather.Behaviours;
 using PocMarten.Api.Aggregates.Invoices.Behaviours;
 using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.BankAccount.Behaviours;
+using Microsoft.Extensions.Options;
+using Weasel.Core;
 
 namespace PocMarten.Api
 {
@@ -44,14 +46,16 @@ namespace PocMarten.Api
             builder.Services.AddMarten(opt =>
             {
                 var connString = builder.Configuration.GetConnectionString("Postgre");
-             
+
+                opt.UseDefaultSerialization(EnumStorage.AsString, nonPublicMembersStorage: NonPublicMembersStorage.All);
+
                 opt.Connection(connString);
 
-                opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
-                opt.Projections.SelfAggregate<InvoiceModel>(ProjectionLifecycle.Inline);
-                opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
-                opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
-                opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
+                //opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
+                //opt.Projections.SelfAggregate<InvoiceModel>(ProjectionLifecycle.Inline);
+                //opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
+                //opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
+                //opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
             });
             
             //Repositories
