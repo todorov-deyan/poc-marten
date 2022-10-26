@@ -2,16 +2,9 @@
 
 namespace PocMarten.Api.Aggregates.Invoices.Events
 {
-    public class GrossAmountValue : IEventState
+    public record GrossAmountValue(decimal GrossAmount, DateTimeOffset DateIssued) : IEventState
     {
         private const decimal GROSSVALUE = 1.2m;
-        public DateTimeOffset DateIssued { get; set; }
-        public decimal GrossAmount { get; set; }
-
-        public GrossAmountValue(decimal grossAmount)
-        {
-            DateIssued = DateTimeOffset.Now;
-            GrossAmount = grossAmount * GROSSVALUE;
-        }
+        public decimal GrossAmount { get; init; } = GrossAmount * GROSSVALUE;
     }
 }

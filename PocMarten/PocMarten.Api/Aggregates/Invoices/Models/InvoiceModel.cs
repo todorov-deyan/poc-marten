@@ -6,7 +6,7 @@ namespace PocMarten.Api.Aggregates.Invoices.Models
 {
     public class InvoiceModel : Aggregate
     {
-        public decimal Amount { get; set; }
+        public AmountInvoice Amount { get; set; }
 
         public AmountType Status { get; private set; }
 
@@ -20,11 +20,8 @@ namespace PocMarten.Api.Aggregates.Invoices.Models
         {
             _ = @event ?? throw new ArgumentNullException(nameof(@event));
 
-            if (Amount < 0)
-                throw new ArgumentException(nameof(@event.Amount));
-
             Id = Guid.NewGuid();
-            Amount = @event.Amount;
+            Amount = new AmountInvoice(@event.Amount);
             Status = @event.Status;
             DateIssued = @event.CreatedAt;
         }
@@ -36,13 +33,13 @@ namespace PocMarten.Api.Aggregates.Invoices.Models
 
         public void Apply(NetAmountValue @event)
         {
-            Amount = @event.NetAmount;
+            Amount = new AmountInvoice(@event.NetAmount);
             Status = AmountType.NetAmountValue;
         }
 
         public void Apply(GrossAmountValue @event)
         {
-            Amount = @event.GrossAmount;
+            Amount = new AmountInvoice(@event.GrossAmount);
             Status = AmountType.GrossAmountValue;
         }
     }

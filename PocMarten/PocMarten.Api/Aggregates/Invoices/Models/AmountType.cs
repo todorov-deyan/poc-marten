@@ -2,7 +2,8 @@
 {
     public enum AmountType
     {
-        NetAmountValue = 0,
-        GrossAmountValue = 1,
+        None = 0,
+        NetAmountValue = 1,
+        GrossAmountValue = 2
     }
 }

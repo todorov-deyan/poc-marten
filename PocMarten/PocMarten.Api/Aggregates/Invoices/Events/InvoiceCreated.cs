@@ -3,14 +3,5 @@ using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.Invoices.Events
 {
-    public class InvoiceCreated : IEventState
-    {
-        public Guid Id { get; set; }
-
-        public decimal Amount { get; set; }
-
-        public AmountType Status { get; set; }
-
-        public DateTimeOffset CreatedAt { get; set; }
-    }
+    public record InvoiceCreated(Guid Id, decimal Amount, AmountType Status, DateTimeOffset CreatedAt) : IEventState;
 }

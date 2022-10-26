@@ -1,5 +1,4 @@
 ﻿using Ardalis.Result;
-using MediatR;
 using PocMarten.Api.Aggregates.Invoices.Events;
 using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.Invoices.Repository;
@@ -19,20 +18,20 @@ namespace PocMarten.Api.Aggregates.Invoices.Commands
         }
         public async Task<Result<InvoiceModel>> Handle(AddAmountCommand request, CancellationToken cancellationToken)
         {
+            InvoiceCreated invoiceCreated = new InvoiceCreated(
 
-            InvoiceCreated invoiceCreated = new()
-            {
-                Id = Guid.NewGuid(),
-                Amount = request.amount,
-                CreatedAt = DateTimeOffset.UtcNow,
-            };
+                Id : Guid.NewGuid(),
+                Amount : request.amount,
+                Status : AmountType.None,
+                CreatedAt : DateTimeOffset.UtcNow
+            );
 
             var newInvoice = InvoiceModel.Create(invoiceCreated);
 
             var events = new List<IEventState>
             {
-                new NetAmountValue(request.amount),
-                new GrossAmountValue(request.amount)
+                new NetAmountValue(invoiceCreated.Amount, invoiceCreated.CreatedAt),
+                new GrossAmountValue(invoiceCreated.Amount, invoiceCreated.CreatedAt)
             };
 
             await _invoiceRepository.Add(newInvoice, events, cancellationToken: cancellationToken);
