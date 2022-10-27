@@ -1,4 +1,5 @@
-﻿using PocMarten.Api.Aggregates.BicoinExchangeRate.Events;
+﻿using Newtonsoft.Json;
+using PocMarten.Api.Aggregates.BicoinExchangeRate.Events;
 using PocMarten.Api.Common.EventSourcing;
 
 namespace PocMarten.Api.Aggregates.BicoinExchangeRate.Models
@@ -11,9 +12,16 @@ namespace PocMarten.Api.Aggregates.BicoinExchangeRate.Models
 
         public ExchangePosition Position { get; private set; }
 
-        public ExchangeRateDetails()
+        [JsonConstructor]
+        private ExchangeRateDetails()
         {
             Id = Guid.NewGuid();
+        }
+        public ExchangeRateDetails(ExchangeRateYesterday @event)
+        {
+            Id = Guid.NewGuid();
+            ExchangeRate = @event.ExchangeRate;
+            Position = ExchangePosition.Init;
         }
 
         public void Apply(ExchangeRateHigh @event)

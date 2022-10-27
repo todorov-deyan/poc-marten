@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using PocMarten.Api.Aggregates.Invoices.Handlers;
+using PocMarten.Api.Aggregates.Invoices.Commands;
 using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.Invoices.Queries;
 using PocMarten.Api.Common.EventSourcing;
@@ -21,25 +21,32 @@ namespace PocMarten.Api.Controllers
         }
 
         [HttpPost(Name = "CreateInvoices")]
-        public async Task<ActionResult> Post(decimal amount, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<InvoiceModel>> Post(decimal amount, CancellationToken cancellationToken = default)
         {
-            var id = await _mediator.Send(new AddAmountCommand(amount), cancellationToken);
+           if(!ModelState.IsValid)
+                return BadRequest();
 
-            return CreatedAtAction("Get", new { streamId = id }, new { streamId = id });
+            var invoice = await _mediator.Send(new AddAmountCommand(amount), cancellationToken);
+
+            if (!invoice.IsSuccess)
+                return BadRequest();
+
+            return CreatedAtAction("Get", new { streamId = invoice.Value.Id }, new { streamId = invoice.Value });
         }
 
         [HttpGet("{streamId:guid}", Name = "Invoices")]
         public async Task<ActionResult<InvoiceModel>> Get(Guid streamId, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var result = await _mediator.Send(new GetInvoiceByIdQuery(streamId), cancellationToken);
-                return Ok(result);
-            }
-            catch (NullReferenceException ex)
-            {
-                return NotFound(ex.Message);
-            }
+         {
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var invoice = await _mediator.Send(new GetInvoiceByIdQuery(streamId), cancellationToken);
+
+            if (!invoice.IsSuccess)
+                return BadRequest();
+
+            return Ok(invoice.Value);
         }
     }
 }

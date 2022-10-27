@@ -10,7 +10,6 @@ namespace PocMarten.Api.Aggregates.BankAccount.Commands
 {
     public record AccountCreateCommand(AccountCreateRequest CreateRequest) : ICommandRequest<Result<Account>>;
 
-
     public class AccountCreateCommandHandler : ICommandHandler<AccountCreateCommand, Result<Account>>
     {
         private readonly BankAccountRepository _repository;

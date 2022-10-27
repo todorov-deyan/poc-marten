@@ -31,7 +31,7 @@ namespace PocMarten.Tests
             _output = output;
             _documentStore = DocumentStore.For(x =>
             {
-                x.Connection("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5433;Database=postgres;Pooling=true;");
+                x.Connection("Username=postgres;Password=secretp@ssword;Host=127.0.0.1;Port=5432;Database=postgres;Pooling=true;");
                 x.Schema.For<Issue>()
                     .ForeignKey<User>(u => u.AssignerId)
                     .ForeignKey<User>(u => u.OriginatorId);

@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PocMarten.Api.Aggregates.BicoinExchangeRate.Events;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using PocMarten.Api.Aggregates.BicoinExchangeRate.Commands;
 using PocMarten.Api.Aggregates.BicoinExchangeRate.Models;
-using PocMarten.Api.Aggregates.BicoinExchangeRate.Repository;
-
-using PocMarten.Api.Common.EventSourcing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PocMarten.Api.Aggregates.BicoinExchangeRate.Queries;
 
 namespace PocMarten.Api.Controllers
 {
@@ -17,19 +11,19 @@ namespace PocMarten.Api.Controllers
     public class ExchangeRateController : ControllerBase
     {
         private static readonly Random Random = new();
-        private readonly ExchangeRateRepository _repository;
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IMediator _mediator;
+        private readonly ILogger<ExchangeRateController> _logger;
 
-        public ExchangeRateController(ExchangeRateRepository repository, ILogger<WeatherForecastController> logger)
-        {
-            _repository = repository;
+        public ExchangeRateController(IMediator mediator, ILogger<ExchangeRateController> logger)
+        {            
+            _mediator = mediator;
             _logger = logger;
         }
 
         [HttpGet("{streamId:guid}", Name = "GetExchangeRate")]
         public async Task<ActionResult<ExchangeRateDetails>> Get(Guid streamId, CancellationToken cancellationToken = default)
         {
-            var result = await _repository.Find(streamId, cancellationToken);
+            var result = await _mediator.Send(new GetExchangeRateByIdQuery(streamId), cancellationToken);
 
             if (result is null)
                 return NotFound();
@@ -40,22 +34,9 @@ namespace PocMarten.Api.Controllers
         [HttpPost(Name = "PostExchangeRate")]
         public async Task<ActionResult> Post(decimal currentExchangeRate, CancellationToken cancellationToken = default)
         {
-            ExchangeRateDetails exchangeRate = new ExchangeRateDetails();
+            var result = await _mediator.Send(new CurrentExchangeRateCommand(currentExchangeRate), cancellationToken);
 
-            List<IEventState> events = new();
-
-            events.Add(new ExchangeRateYesterday(currentExchangeRate));
-
-            var bitcoinLow = Random.Next(0, 1000);
-
-            events.Add(new ExchangeRateLow(currentExchangeRate + bitcoinLow*(-1)));
-
-            var bitcoinHigh = Random.Next(1, 1000);
-            events.Add(new ExchangeRateHigh(currentExchangeRate + bitcoinHigh));
-
-            await _repository.Add(exchangeRate, events, cancellationToken);
-
-            return CreatedAtAction("Get", new { streamId = exchangeRate.Id }, new { streamId = exchangeRate.Id });
+            return CreatedAtAction("Get", new { streamId = result.Id }, new { streamId = result.Id });
         }
     }
 }
