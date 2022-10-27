@@ -18,6 +18,11 @@ using PocMarten.Api.Aggregates.Invoices.Models;
 using PocMarten.Api.Aggregates.BankAccount.Behaviours;
 using Microsoft.Extensions.Options;
 using Weasel.Core;
+using PocMarten.Api.Aggregates.Helpdesk.Models.GetIncidentShortInfo;
+using PocMarten.Api.Aggregates.Helpdesk.Models.GetIncidentDetails;
+using PocMarten.Api.Aggregates.Helpdesk.Models.GetIncidentHistory;
+using Marten.Events.Daemon.Resiliency;
+using PocMarten.Api.Aggregates.Helpdesk.Models.GetCustomerIncidentsSummary;
 
 namespace PocMarten.Api
 {
@@ -34,7 +39,10 @@ namespace PocMarten.Api
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(opt =>
+            {
+                opt.EnableAnnotations();
+            });
 
             //MediatR
             builder.Services.AddMediatR(typeof(Program));
@@ -51,12 +59,17 @@ namespace PocMarten.Api
 
                 opt.Connection(connString);
 
-                //opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
-                //opt.Projections.SelfAggregate<InvoiceModel>(ProjectionLifecycle.Inline);
-                //opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
-                //opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
-                //opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
-            });
+                opt.Projections.SelfAggregate<WeatherForecast>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<InvoiceModel>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<OrderModel>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<ExchangeRateDetails>(ProjectionLifecycle.Inline);
+                opt.Projections.SelfAggregate<Account>(ProjectionLifecycle.Inline);
+
+                opt.Projections.Add<IncidentShortInfoProjection>(ProjectionLifecycle.Inline);
+                opt.Projections.Add<IncidentDetailsProjection>(ProjectionLifecycle.Inline);
+                opt.Projections.Add<IncidentHistoryTransformation>(ProjectionLifecycle.Inline);
+                opt.Projections.Add<CustomerIncidentsSummaryProjection>(ProjectionLifecycle.Async);
+            }).AddAsyncDaemon(DaemonMode.Solo);
             
             //Repositories
             builder.Services.AddScoped<WeatherRepository>();
